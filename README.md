@@ -6,10 +6,10 @@ MGEasy 是一个 Codex 技能，把主题、完整口播稿或 SRT 设计成 Goo
 
 ## 怎么用
 
-将仓库放入 Codex 的技能目录。使用能访问此仓库的 GitHub 账号运行：
+公开仓库可以直接克隆到 Codex 的技能目录。
 
 ```sh
-gh repo clone louchi1984-coder/mgeasy "$HOME/.codex/skills/mgeasy"
+git clone https://github.com/louchi1984-coder/mgeasy.git "$HOME/.codex/skills/mgeasy"
 ```
 
 新开一个 Codex 会话，附上口播稿或 SRT，然后输入：
