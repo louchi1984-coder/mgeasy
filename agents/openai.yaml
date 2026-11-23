@@ -1,0 +1,4 @@
+interface:
+  display_name: "MGEasy"
+  short_description: "将主题、文案或 SRT 设计成 MG 分镜，交付 Google Flow 提示词与 JSON"
+  default_prompt: "使用 $mgeasy，将这份文案或 SRT 设计成 MG 视频分镜和 Google Flow Prompt。"
