@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -14,9 +15,21 @@ TIME_RE = re.compile(r"^(?:(\d+):)?(\d{1,2}):(\d{2})(?:[,.](\d{1,3}))?$")
 EPSILON = 0.002
 
 
+def number(value: object) -> float:
+    try:
+        if isinstance(value, bool):
+            raise ValueError
+        result = float(value)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError(f"invalid number: {value!r}") from exc
+    if not math.isfinite(result) or result < 0:
+        raise ValueError(f"expected a finite non-negative number, got {value!r}")
+    return result
+
+
 def parse_time(value: object) -> float:
     if isinstance(value, (int, float)):
-        return float(value)
+        return number(value)
     if not isinstance(value, str):
         raise ValueError(f"unsupported time value: {value!r}")
     match = TIME_RE.match(value.strip())
@@ -28,12 +41,12 @@ def parse_time(value: object) -> float:
     millis = int((match.group(4) or "0").ljust(3, "0"))
     if minutes >= 60 or seconds >= 60:
         raise ValueError(f"invalid time value: {value!r}")
-    return hours * 3600 + minutes * 60 + seconds + millis / 1000
+    return number(hours * 3600 + minutes * 60 + seconds) + millis / 1000
 
 
 def snap_duration(actual: float) -> int | None:
-    for duration in (4, 6, 8, 10):
-        if actual <= duration + EPSILON:
+    for duration in range(3, 16):
+        if actual <= duration or math.isclose(actual, duration, rel_tol=0, abs_tol=1e-9):
             return duration
     return None
 
@@ -42,37 +55,66 @@ def close(left: float, right: float) -> bool:
     return abs(left - right) <= EPSILON
 
 
-def validate(data: dict) -> dict:
+def check_optional_seconds(shot: dict, shot_id: str, field: str, expected: float, errors: list[str]) -> None:
+    if shot.get(field) is None:
+        return
+    try:
+        valid = close(number(shot[field]), expected)
+    except ValueError:
+        valid = False
+    if not valid:
+        errors.append(f"shot {shot_id}: {field} must be {expected:.3f}, got {shot[field]!r}")
+
+
+def validate(data: object) -> dict:
     errors: list[str] = []
     warnings: list[str] = []
-    cues = data.get("cues", [])
+    computed_shots: list[dict] = []
+    if not isinstance(data, dict):
+        return {"ok": False, "errors": ["plan must be a JSON object"],
+                "warnings": warnings, "computed_shots": computed_shots}
+
+    cues = data.get("cues")
     shots = data.get("shots", [])
+    if not isinstance(cues, list):
+        errors.append("cues must be a list")
+    if not isinstance(shots, list) or not shots:
+        errors.append("shots must be a non-empty list")
+    if errors:
+        return {"ok": False, "errors": errors, "warnings": warnings, "computed_shots": computed_shots}
 
-    if not cues:
-        errors.append("cues must contain at least one subtitle cue")
-    if not shots:
-        errors.append("shots must contain at least one shot")
-
-    parsed_cues: list[tuple[float, float]] = []
+    parsed_cues: dict[int, tuple[float, float]] = {}
+    previous_cue_end = None
     for index, cue in enumerate(cues):
         try:
             start = parse_time(cue["start"])
             end = parse_time(cue["end"])
-        except (KeyError, ValueError) as exc:
+        except (KeyError, TypeError, ValueError) as exc:
             errors.append(f"cue {index}: {exc}")
             continue
         if end <= start:
             errors.append(f"cue {index}: end must be later than start")
-        if parsed_cues and start < parsed_cues[-1][1] - EPSILON:
+        if previous_cue_end is not None and start < previous_cue_end - EPSILON:
             errors.append(f"cue {index}: overlaps the previous cue")
-        parsed_cues.append((start, end))
+        previous_cue_end = end
+        parsed_cues[index] = (start, end)
 
     assigned: dict[int, str] = {}
     previous_end: float | None = None
-    computed_shots: list[dict] = []
+    seen_ids: set[str] = set()
 
     for index, shot in enumerate(shots):
-        shot_id = str(shot.get("shot_id", index + 1))
+        if not isinstance(shot, dict):
+            errors.append(f"shot at index {index} must be an object")
+            continue
+        value = shot.get("shot_id", index + 1)
+        if type(value) not in (str, int) or not str(value).strip():
+            errors.append(f"shot at index {index}: invalid shot_id {value!r}")
+            continue
+        shot_id = str(value).strip()
+        if shot_id in seen_ids:
+            errors.append(f"duplicate shot_id: {shot_id}")
+        seen_ids.add(shot_id)
         try:
             start = parse_time(shot["start"])
             end = parse_time(shot["end"])
@@ -92,22 +134,20 @@ def validate(data: dict) -> dict:
         expected = snap_duration(actual)
         declared_duration = shot.get("duration_seconds")
         if expected is None:
-            errors.append(f"shot {shot_id}: actual duration {actual:.3f}s exceeds 10 seconds")
+            errors.append(f"shot {shot_id}: actual duration {actual:.3f}s exceeds 15 seconds")
         elif declared_duration != expected:
             errors.append(f"shot {shot_id}: duration_seconds must be {expected}, got {declared_duration!r}")
 
-        declared_actual = shot.get("actual_duration_seconds")
-        if declared_actual is not None and not close(float(declared_actual), actual):
-            errors.append(f"shot {shot_id}: actual_duration_seconds must be {actual:.3f}")
+        check_optional_seconds(shot, shot_id, "actual_duration_seconds", actual, errors)
 
         cue_indices = shot.get("cue_indices")
-        if not isinstance(cue_indices, list) or not cue_indices:
-            errors.append(f"shot {shot_id}: cue_indices must be a non-empty list")
+        if not isinstance(cue_indices, list):
+            errors.append(f"shot {shot_id}: cue_indices must be a list")
             cue_indices = []
 
         spoken = 0.0
         for cue_index in cue_indices:
-            if not isinstance(cue_index, int) or cue_index < 0 or cue_index >= len(parsed_cues):
+            if type(cue_index) is not int or cue_index not in parsed_cues:
                 errors.append(f"shot {shot_id}: invalid cue index {cue_index!r}")
                 continue
             if cue_index in assigned:
@@ -119,9 +159,7 @@ def validate(data: dict) -> dict:
             spoken += cue_end - cue_start
 
         blank = max(0.0, actual - spoken)
-        declared_blank = shot.get("included_blank_seconds")
-        if declared_blank is not None and not close(float(declared_blank), blank):
-            errors.append(f"shot {shot_id}: included_blank_seconds must be {blank:.3f}")
+        check_optional_seconds(shot, shot_id, "included_blank_seconds", blank, errors)
 
         computed_shots.append(
             {
@@ -132,7 +170,7 @@ def validate(data: dict) -> dict:
             }
         )
 
-    for cue_index in range(len(parsed_cues)):
+    for cue_index in parsed_cues:
         if cue_index not in assigned:
             errors.append(f"cue {cue_index}: not assigned to any shot")
 
@@ -155,7 +193,7 @@ def main() -> int:
     args = parser.parse_args()
     try:
         data = json.loads(args.plan.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         print(json.dumps({"ok": False, "errors": [str(exc)]}, ensure_ascii=False, indent=2))
         return 2
     result = validate(data)

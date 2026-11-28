@@ -1,8 +1,8 @@
 # MGEasy
 
-**主要适配 Google Flow 的 Omni Flash 1.2（Omni 1.2）。**
+**面向 Google Flow / Gemini Omni 的 Google Keynote 2.5D 商业动效技能。**
 
-MGEasy 是一个 Codex 技能，把主题、完整口播稿或 SRT 设计成 Google-like 动态图形（MG）分镜。每镜根据内容选择文字、图形或图表，再设计运动、视线和相邻镜头的衔接。
+MGEasy 把主题、文案、口播录音或 SRT 拆成动效分镜。每镜按内容选择动态文字、图形、图表或 UI，再设计动作、运镜和衔接，交付可直接复制的英文 Prompt。
 
 ## 怎么用
 
@@ -12,16 +12,18 @@ MGEasy 是一个 Codex 技能，把主题、完整口播稿或 SRT 设计成 Goo
 git clone https://github.com/louchi1984-coder/mgeasy.git "$HOME/.codex/skills/mgeasy"
 ```
 
-新开一个 Codex 会话，附上口播稿或 SRT，然后输入：
+新开一个 Codex 会话，附上口播录音、文案或 SRT，输入下面这条指令即可从时间规划开始。
 
-> 用 $mgeasy 把这份 SRT 做成 16:9 的 Google-like MG 分镜。生成目标用 Google Flow 的 Omni Flash 1.2，先给我看时间规划。
+> 用 $mgeasy 把这段口播做成 16:9 的 Google Keynote 2.5D MG 分镜。用 Google Flow / Gemini Omni Flash，先给我看时间规划。
 
-1. **确认时间规划。** SRT 保留原始时间轴和空白，按语义拆镜。用能覆盖实际镜头时长的最小档位规划生成时长，档位为 4、6、8、10 秒。
-2. **确认画面。** 选择生成模型和比例，逐镜确认主视觉、运动、入场、出场及画面文字。可选参数以当前 Flow 界面为准。
-3. **拿到生成材料。** 技能交付声画对照表、每镜可复制到 Google Flow 的英文 Prompt，以及记录镜头安排和生成参数的 JSON。
+1. **确认时间轴。** 按语义拆镜，保留原始时间、空白和录音中已读出的标题。按 `3–15` 秒整数档规划生成时长，实际可用参数以 Flow 面板为准。
+2. **逐镜确认画面。** 选择比例和衔接方式，可用上一镜末帧作为下一镜的开场参考，也可用纯文生色场衔接。
+3. **复制 Prompt 到 Flow。** 每镜交付经脚本校验和独立盲审的纯视觉英文 Prompt，并在正文外列出面板参数。出片后可针对错字、节奏或底色使用局部精修指令。
+4. **交付成片。** 全部镜头确认后获得声画对照表。把生成片段发回 Codex，可按原时间轴校验、合并并对齐原口播。
 
 ## 文件
 
 - [SKILL.md](SKILL.md) 提供工作流程和适用范围。
-- [画面设计规则](references/mg-design.md) 和 [输出合同](references/output-contract.md) 记录分镜设计和交付要求。
-- [时间轴校验脚本](scripts/validate_timeline.py) 使用 Python 3 检查分镜计划 JSON 的字幕覆盖、时间间隔和时长档位。
+- [画面设计规则](references/mg-design.md) 和 [输出合同](references/output-contract.md) 记录分镜与 Prompt 要求。
+- [首尾帧与局部精修](references/omni-iteration.md) 提供操作说明和示例。
+- [交付校验](references/delivery-checks.md) 说明如何校验时间轴、Prompt、素材和成片。脚本使用 Python 3，媒体检查需要 `ffprobe`。

@@ -1,4 +1,4 @@
 interface:
   display_name: "MGEasy"
-  short_description: "将主题、文案或 SRT 设计成 MG 分镜，交付 Google Flow 提示词与 JSON"
-  default_prompt: "使用 $mgeasy，将这份文案或 SRT 设计成 MG 视频分镜和 Google Flow Prompt。"
+  short_description: "将主题、文案、口播录音或 SRT 设计成 Google Keynote 2.5D 商业动效分镜，交付精简 Omni Prompt 并衔接合并"
+  default_prompt: "使用 $mgeasy，将这份文案、口播录音或 SRT 设计成 Google Keynote 2.5D 商业动效分镜和 Omni 视频 Prompt。"

@@ -1,107 +1,64 @@
-# 最终输出合同
+# 最终输出合同（Omni 2.0 · 3 类差异化导演规范）
 
-只有字幕 Shot、生成参数和视觉设计全部确认后才输出。
+当前 Shot 的时间轴、参数和设计思路经用户确认后，按本合同交付可直接粘贴到 Google Flow / Omni 的连续英文 Prompt（总词数建议 **140–220 词**，**90% 以上为纯正向视觉与动效信号**）。
 
-## 交付物
+## 交付内容
 
-1. 声画对照表。
-2. 每个 Shot 一段 Google Flow 可直接复制的连续英文 Prompt。
-3. 结构化 JSON。
+1. **Flow / Omni 面板参数提示**（给用户手动设置的 1 行摘要，不放进 Prompt 正文）：
+   - 比例（`16:9` / `9:16`）、时长（`3s–15s` 整数秒）、衔接方式（首尾帧参考 / 纯文生色场接力 / 动势硬切）。
+2. **可直接复制的英文 Prompt**（纯自然段落，无中英文模板标签、无 `--ar`、无模型名、无 JSON 数组、无 Hex 色码、无 `1px` 等 CSS 单位）。
+3. 全部镜头确认后，补一份声画对照表（镜号、时间范围、档位、口播、表达方式、画面与动效要点、可见文字、衔接方式）。
 
-## Prompt 强制项
+---
 
-每段 Prompt 必须依次写全：
+## 规范 4 段式导演结构（按 3 类表达方式精准差异化）
 
-1. MG 风格开头、实际比例和明确吸附时长，例如 `Google-like kinetic motion graphics, clean full-frame MG canvas, flat vector geometry, horizontal 16:9. 8-second duration.`；有可见文字时加入与当前设计相符的排版描述。
-2. 铺满画布的视觉基底，而非漂浮容器。
-3. 已确认的表达方式和场景锚点；只有 `metaphor` 模式写视觉隐喻及其可见实体映射。
-4. 中心主体和辅助元素的造型、材质、颜色、位置与状态；辅助元素遵循 `mg-design.md` 的同屏密度与主次规则，不按分组数量凑元素。
-5. 前景、中景、背景和上下左右关系。
-6. 获准文字的逐字白名单；无文字时写 `Display no text.`。
-7. 与生成时长完全一致的两段或三段动作时间戳。
-8. 按内容选择的镜头运动、方向和强度；可固定机位、持续运动或按需要变化，不默认每镜必须持续运镜。
-9. 所选风格的材质、轮廓、光影、动画稳定性和禁止项。
-10. 实际 `--ar`、无水印、无配音、无人声和静音视频。
+### 1. 风格、媒介与一镜锁定（开头 2 句，按类型选用）
+- **`direct_info` 直接信息（文字 / 数据 / 表格 / 清单）**：
+  `Sleek Google Keynote kinetic typography and data motion graphics in Google Brand Studio and Material 3 expressive style — high-craft 2.5D graphic design featuring flat 2D bold editorial typography, precision data visuals and clean matte vector geometry on a luminous abstract color-field canvas. One continuous shot, no scene cuts.`
+- **`visual` 视觉化展示（产品结构 / UI 元素化微剧情 / 图形隐喻）**：
+  `Sleek Google Keynote commercial motion graphics in Google Brand Studio and Material 3 expressive style — high-craft 2.5D hybrid motion design blending crisp matte vector geometry, opaque Material 3 UI cards or restrained frosted-glass accents and flat 2D bold typography on a luminous abstract color-field canvas. One continuous shot, no scene cuts.`
+- **`story` 剧情推动（精良 2D 商业插画人物 + 克制 UI，绝不用真人实拍）**：
+  `Sleek Google Keynote commercial motion graphics in Google Brand Studio and Buck editorial 2D illustration style — high-craft 2.5D hybrid animation pairing a refined modern 2D illustrated character with clean Material UI cards on a luminous abstract color-field canvas. One continuous shot, no scene cuts.`
+- **首尾帧参考模式（`continuity_mode: "start_frame"`，通用）**：
+  `Continue seamlessly from the opening reference frame in sleek Google Keynote 2.5D commercial motion graphics style, preserving the exact opening graphic palette and crisp frosted-glass and vector aesthetic. One continuous shot, no scene cuts.`
 
-Hex 只用于控制颜色。Prompt 必须写：
+### 2. 画布、2.5D 分层与**仅限首帧存在的**元素（2–3 句，按类型侧重）
+- **严格因果铁律（防提前剧透）**：本段**只描写第 0 秒开场时真正存在的元素**；凡是在后半段才触发弹出的文字、卡片或遮罩，一律留到第 3 段对应时间段里再按先后依赖关系出场，**严禁提前写在本段**，也**严禁在画边提前停放一块等待转场的纯色板**。
+- **`direct_info`**：强调**排版主权与数据精确比例**——写清大色面分割、悬殊字号层级、进度条/柱图/表格的清晰结构（基线轴、网格、表头，不极简到看不出），磨砂只做进度条或轻装饰。
+- **`visual`**：强调**核心对象与一眼可辨结构**——写清起点物体与具体可辨特征（如视频卡带播放三角与进度条），同体变形锁死物理延续；文字压低篇幅只作短标签。
+- **`story`**：强调**精良 2D 人物造型与极简舞台**——必须明确指定**人物性别**、现代发型、穿搭色、干净克制的五官神态与 2D 平面色块；周围悬浮磨砂 UI 卡片必须写明 `zero tiny text`。
+- **可见文字直接空间绑定（严禁 `Display only these exact strings: [...]` JSON 数组）**：
+  - 开场即见的文字写在本段；延迟触发的文字写在对应时间段并写明触发前置动作；均用英文双引号逐字写出并锁死 `bold geometric sans-serif typography with high contrast`。
+  - 无文字镜写明 `purely visual graphic composition with no text`。
 
-`Use the specified Hex values only as invisible color-generation controls. Never render Hex codes or color-code notation as visible text inside the scene.`
+### 3. 快起脆落连续时间段（`[0–Xs]`、`[X–Ys]`，10 秒可选 `[Y–Zs]`）
+- 整数秒连续覆盖 `0–{duration}s`，**严禁小数秒**。
+- 动势重心差异化：
+  - `direct_info`：侧重**锁格与强调**（`snappy pop-in`、`locks decisively onto the exact 72% mark`、阅读段镜头稳推不乱晃）；
+  - `visual`：侧重**连续变形与强 2.5D 运镜**（`zero-lag morph`、`magnetic snap`、`whip-pan`、斜向穿推/指数急推）；
+  - `story`：侧重**情绪微表演（一问一答）**（外部磨砂卡片弹出触发 → 人物眼神/眉毛/肩膀/手势反应 → 镜头推近定格情绪）。
+- 结尾按选定衔接方式收束：
+  - **首尾帧直连**：收在干净无残影、动势清晰的构图上供截帧；
+  - **纯文生色场接力**：靠已有形体/大色块疾速扫满或急推填满全屏纯色场（用高辨识度色名，不用 Hex）；
+  - **动势硬切 / 末镜**：干脆弹性定格在清晰可读的最终画面（跨镜硬切时让动势方向与下一镜自然顺接）。
 
-Prompt 使用自然连续英文，不得输出“背景：”“主体：”等模板标签。时间戳不能代替明确的 `4/6/8/10-second duration`。Prompt 要写当前 Shot 的结果、关系、注意力路径、限制和禁区；不要写成模板填空，不要在多个 Shot 反复套用同一种构图、路径、圆点、卡片或图表句式。
+### 4. 紧凑正向商业质感收尾（1 句）
+`Refined Google commercial 2.5D motion design polish, snappy After Effects bounce-and-snap rhythm, dynamic 2.5D camera choreography, crisp accurate Chinese typography, clean silent visuals.`
+*(剧情镜可微调为 `modern 2D editorial character contrasting with frosted glassmorphism UI`；无中文时写 `crisp bold typography`；无文字时写 `pure wordless graphic clarity`。)*
 
-实际时长短于生成档位时，结合生成结果选择画面变速、剪点调整或重新生成，音频默认原速；裁切后仍保留内容和所需衔接时可直接尾裁。
+---
 
-## JSON
+## 严禁出现在视频 Prompt 中的内容（脚本会自动拦截）
 
-```json
-{
-  "shot_id": "02",
-  "source_start": "00:00.000",
-  "source_end": "00:06.700",
-  "subtitle_text": "确认后的字幕",
-  "voiceover_text": "确认后的旁白",
-  "included_blank_seconds": 1.3,
-  "actual_duration_seconds": 6.7,
-  "duration_seconds": 8,
-  "model": "Google Flow / Omni Flash",
-  "aspect_ratio": "9:16",
-  "crop_target_ratio": null,
-  "visual_style": "google-kinetic-mg",
-  "custom_style_profile": null,
-  "core_message": "本镜核心信息",
-  "expression_mode": "direct | story | metaphor",
-  "scene_anchor": "真实主体、故事场景或隐喻场景",
-  "continuity_anchor": null,
-  "visual_metaphor": null,
-  "entity_mapping": [],
-  "visual_summary": "确认后的画面",
-  "camera": "确认后的运镜",
-  "visible_text": ["确认后的短标签"],
-  "style_specific": {"mg_design": {}},
-  "visual_prompt": "完整英文 Prompt"
-}
-```
+1. **Midjourney / 外部参数语法**：`--ar 16:9` 等一切 `--` 参数。
+2. **JSON 数组白名单与模型名**：`Display only these exact strings: [...]`、`using Gemini Omni Flash ...`。
+3. **Hex 色码、CSS/设计标注单位与冗长负面免责句**：`#E7F3F5` 等色码、`1px / 2px / pt / dp / rem`（一律改用 `hairline / ultra-thin`）、40 词中文免责句、26 词 Hex 免责句。
+4. **LLM / 流程元指令与模板标签**：`Let the model choose`、`Build a more developed composition`、`planned preceding`、`for the next shot`、`Camera:`、`Subject:`、`Background:`、`背景：`、`主体：`。
+5. **拉偏写实、真人实拍或廉价剪贴画的高危词**：`photorealistic`、`real-world`、`3D render`、`live-action`、`lens`、`icons`。
+6. **小数秒微控制**：`[0.5–2.5s]`、`0.6s`。
 
-`actual_duration_seconds` 记录连续真实区间；`duration_seconds` 必须是吸附后的 `4/6/8/10`，并与 Prompt 和生成工具调用参数完全一致。
+## 交付前门禁
 
-`direct` 与 `story` 的 `visual_metaphor` 必须为 `null`，`entity_mapping` 通常为空；`metaphor` 必须填写两者。只有存在连续演变或跨 Shot 重复主体时才填写 `continuity_anchor`，否则为 `null`。
-
-MGEasy 使用独立的 `google-kinetic-mg` 风格；`custom_style_profile` 为 `null`，不进入其他画风或自定义风格卡流程。
-
-`style_specific.mg_design` 保存 MG 中间决策：`content_intent`、`information_relation`、`primary_carrier`、`support_carriers`、`motion_task`、`attention_path`、`perspective_intensity`、`transition_bridge`、`background_state`、`entry_state`、`exit_state` 和 `shared_element`。具体结构见 [mg-design.md](mg-design.md)。设计分类不用作英文 Prompt 字段标签；已确认的可见主体、动作和运镜仍须写进 Prompt。
-
-## 交付前检查
-
-- 时间轴空白是否完整，真实时长与吸附档位是否正确？
-- 模型、实际比例、裁切目标和 MG 视觉设计是否已确认？
-- 每个内容 Shot 是否有一个核心信息和一种表达方式，并满足该模式的场景锚点、隐喻或连续性要求？
-- 是否保持 MG 视觉语法，且达到完整 Prompt 合同？
-- 可见文字是否完全来自白名单，Hex 是否明确禁止可见？
-- 动作段数、动作时间戳和连续运镜是否与时长一致？
-- 需要强化已有焦点时，是否保留必要单位和上下文？“干净”是否被误写成稀疏或无信息的具象堆砌？
-- 如设计了转场，是否避免打断主要信息？如片段需缩短，是否说明实际结果仍需检查？
-
-任一项为否时不得交付。
-
-## 无持久化权限时的学习回退
-
-正常情况下，学习状态写入外部 JSON，不改变上述交付物。只有发生真实失败、用户明确纠正或五次成功复盘到期，并且状态文件不可写时，才在全部正常交付物之后追加一个结构化对象：
-
-```json
-{
-  "learning_observation": {
-    "event_type": "failure | user_correction | success_batch_review",
-    "observed_at": "ISO-8601 UTC",
-    "summary": "不含原始文案、路径、账号、密钥或隐私信息的抽象说明",
-    "candidate_improvement": {
-      "trigger": "清楚触发条件",
-      "action": "可执行规则",
-      "boundary": "适用边界",
-      "validation_plan": "测试、dry-run、validator、示例任务或人工检查"
-    },
-    "persistence_status": "unavailable"
-  }
-}
-```
-
-没有学习事件时不输出该对象。单次偶然失败或未通过学习门槛时，`candidate_improvement` 使用 `null`。不得把 Learning Observation 写入 `visual_prompt`。
+1. 运行 `python3 -B scripts/validate_delivery.py <delivery.json> prompt --shot <id>` 必须 `ok: true`（尽量清零 warnings）。
+2. 通过 [review.md](review.md) 独立子 agent 盲审 6 项全部 `PASS`。
